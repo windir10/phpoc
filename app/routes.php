@@ -4,6 +4,13 @@ use Symfony\Component\HttpFoundation\Request;
 use MicroCMS\Domain\Comment;
 use MicroCMS\Form\Type\CommentType;
 
+$app->get('/hashpwd/{password}', function($password) use ($app) {
+    $rawPassword = $password;
+    $salt = '%qUgq3NAYfC1MKwrW?yevbE';
+    $encoder = $app['security.encoder.bcrypt'];
+    return $encoder->encodePassword($rawPassword, $salt);
+});
+
 // Home page
 $app->get('/', function () use ($app) {
     $articles = $app['dao.article']->findAll();
