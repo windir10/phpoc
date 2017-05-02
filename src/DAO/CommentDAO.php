@@ -130,6 +130,15 @@ class CommentDAO extends DAO
     public function deleteAllByArticle($articleId) {
         $this->getDb()->delete('t_comment', array('art_id' => $articleId));
     }
+	
+	/**
+     * Removes all comments for a user
+     *
+     * @param integer $userId The id of the user
+     */
+    public function deleteAllByUser($userId) {
+        $this->getDb()->delete('t_comment', array('usr_id' => $userId));
+    }
 
     /**
      * Creates an Comment object based on a DB row.
