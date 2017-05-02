@@ -103,3 +103,25 @@ $app->get('/admin/article/{id}/delete', function($id, Request $request) use ($ap
     return $app->redirect($app['url_generator']->generate('admin'));
 })->bind('admin_article_delete');
 
+// Edit an existing comment
+$app->match('/admin/comment/{id}/edit', function($id, Request $request) use ($app) {
+    $comment = $app['dao.comment']->find($id);
+    $commentForm = $app['form.factory']->create(CommentType::class, $comment);
+    $commentForm->handleRequest($request);
+    if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+        $app['dao.comment']->save($comment);
+        $app['session']->getFlashBag()->add('success', 'The comment was successfully updated.');
+    }
+    return $app['twig']->render('comment_form.html.twig', array(
+        'title' => 'Edit comment',
+        'commentForm' => $commentForm->createView()));
+})->bind('admin_comment_edit');
+
+// Remove a comment
+$app->get('/admin/comment/{id}/delete', function($id, Request $request) use ($app) {
+    $app['dao.comment']->delete($id);
+    $app['session']->getFlashBag()->add('success', 'The comment was successfully removed.');
+    // Redirect to admin home page
+    return $app->redirect($app['url_generator']->generate('admin'));
+})->bind('admin_comment_delete');
+
