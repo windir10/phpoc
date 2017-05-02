@@ -50,3 +50,14 @@ $app->get('/login', function(Request $request) use ($app) {
         'last_username' => $app['session']->get('_security.last_username'),
     ));
 })->bind('login');
+
+// Admin home page
+$app->get('/admin', function() use ($app) {
+    $articles = $app['dao.article']->findAll();
+    $comments = $app['dao.comment']->findAll();
+    $users = $app['dao.user']->findAll();
+    return $app['twig']->render('admin.html.twig', array(
+        'articles' => $articles,
+        'comments' => $comments,
+        'users' => $users));
+})->bind('admin');
