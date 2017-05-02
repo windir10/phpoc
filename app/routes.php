@@ -2,7 +2,9 @@
 
 use Symfony\Component\HttpFoundation\Request;
 use MicroCMS\Domain\Comment;
+use MicroCMS\Domain\Article;
 use MicroCMS\Form\Type\CommentType;
+use MicroCMS\Form\Type\ArticleType;
 
 $app->get('/hashpwd/{password}', function($password) use ($app) {
     $rawPassword = $password;
@@ -61,3 +63,43 @@ $app->get('/admin', function() use ($app) {
         'comments' => $comments,
         'users' => $users));
 })->bind('admin');
+
+// Add a new article
+$app->match('/admin/article/add', function(Request $request) use ($app) {
+    $article = new Article();
+    $articleForm = $app['form.factory']->create(ArticleType::class, $article);
+    $articleForm->handleRequest($request);
+    if ($articleForm->isSubmitted() && $articleForm->isValid()) {
+        $app['dao.article']->save($article);
+        $app['session']->getFlashBag()->add('success', 'The article was successfully created.');
+    }
+    return $app['twig']->render('article_form.html.twig', array(
+        'title' => 'New article',
+        'articleForm' => $articleForm->createView()));
+})->bind('admin_article_add');
+
+// Edit an existing article
+$app->match('/admin/article/{id}/edit', function($id, Request $request) use ($app) {
+    $article = $app['dao.article']->find($id);
+    $articleForm = $app['form.factory']->create(ArticleType::class, $article);
+    $articleForm->handleRequest($request);
+    if ($articleForm->isSubmitted() && $articleForm->isValid()) {
+        $app['dao.article']->save($article);
+        $app['session']->getFlashBag()->add('success', 'The article was successfully updated.');
+    }
+    return $app['twig']->render('article_form.html.twig', array(
+        'title' => 'Edit article',
+        'articleForm' => $articleForm->createView()));
+})->bind('admin_article_edit');
+
+// Remove an article
+$app->get('/admin/article/{id}/delete', function($id, Request $request) use ($app) {
+    // Delete all associated comments
+    $app['dao.comment']->deleteAllByArticle($id);
+    // Delete the article
+    $app['dao.article']->delete($id);
+    $app['session']->getFlashBag()->add('success', 'The article was successfully removed.');
+    // Redirect to admin home page
+    return $app->redirect($app['url_generator']->generate('admin'));
+})->bind('admin_article_delete');
+

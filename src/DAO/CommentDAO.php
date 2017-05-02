@@ -93,6 +93,15 @@ class CommentDAO extends DAO
             $comment->setId($id);
         }
     }
+	
+	 /**
+     * Removes all comments for an article
+     *
+     * @param $articleId The id of the article
+     */
+    public function deleteAllByArticle($articleId) {
+        $this->getDb()->delete('t_comment', array('art_id' => $articleId));
+    }
 
     /**
      * Creates an Comment object based on a DB row.
