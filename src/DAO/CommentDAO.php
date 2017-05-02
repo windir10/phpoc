@@ -53,6 +53,24 @@ class CommentDAO extends DAO
     }
 	
 	/**
+     * Returns a list of all comments, sorted by date (most recent first).
+     *
+     * @return array A list of all comments.
+     */
+    public function findAll() {
+        $sql = "select * from t_comment order by com_id desc";
+        $result = $this->getDb()->fetchAll($sql);
+
+        // Convert query result to an array of domain objects
+        $entities = array();
+        foreach ($result as $row) {
+            $id = $row['com_id'];
+            $entities[$id] = $this->buildDomainObject($row);
+        }
+        return $entities;
+    }
+	
+	/**
      * Saves a comment into the database.
      *
      * @param \MicroCMS\Domain\Comment $comment The comment to save
