@@ -10,7 +10,15 @@ ExceptionHandler::register();
 
 $app->register(new Silex\Provider\SecurityServiceProvider(), array(
     'security.firewalls' => array(
-        // ...
+        'secured' => array(
+            'pattern' => '^/',
+            'anonymous' => true,
+            'logout' => true,
+            'form' => array('login_path' => '/login', 'check_path' => '/login_check'),
+            'users' => function () use ($app) {
+                return new MicroCMS\DAO\UserDAO($app['db']);
+            },
+        ),
     ),
     'security.role_hierarchy' => array(
         'ROLE_ADMIN' => array('ROLE_USER'),
@@ -36,19 +44,6 @@ $app->register(new Silex\Provider\AssetServiceProvider(), array(
     'assets.version' => 'v1'
 ));
 $app->register(new Silex\Provider\SessionServiceProvider());
-$app->register(new Silex\Provider\SecurityServiceProvider(), array(
-    'security.firewalls' => array(
-        'secured' => array(
-            'pattern' => '^/',
-            'anonymous' => true,
-            'logout' => true,
-            'form' => array('login_path' => '/login', 'check_path' => '/login_check'),
-            'users' => function () use ($app) {
-                return new MicroCMS\DAO\UserDAO($app['db']);
-            },
-        ),
-    ),
-));
 			
 $app->register(new Silex\Provider\FormServiceProvider());
 $app->register(new Silex\Provider\LocaleServiceProvider());
